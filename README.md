@@ -1,20 +1,18 @@
 # Gnosis Labs ZuBerlin 2024
 
-Welcome to the Gnosis AI ZuBerlin 2024 Hackathon repo! Here you will find all you need to build a tool for AI Agents that can make predictions on outcomes of future events.
+Welcome to the Gnosis AI dAGI Hackathon repo! Here you will find all you need to build an AI agent that can autonomously complete actions (including onchain).
 
-[Presentation available here.](https://docs.google.com/presentation/d/1gajA3m5p_X4R4oyNc80p5_uSYZz0z2R-YKxm0RQnz_4/edit?usp=sharing)
+[Presentation available here.](https://docs.google.com/presentation/d/1aOLmKrRkkNktWOh3BwLqtG9AmQeiht9Gc1ONB5fH7RQ/edit?usp=sharing)
 
 Follow the instructions below to get started.
 
-## Bounties 💸
+## Running the autonomous agent
 
-- 1st place $1k
-- 2nd place $750
-- 3rd place $250
+``````
 
 ## Support
 
-Contact us at https://t.me/+Fb0trLKZdMw2MTQ8.
+Contact us on Discord (channel #gnosis-ai on the Gnosis Discord).
 
 ## Setup
 
@@ -30,9 +28,9 @@ Copy `.env.example` to `.env` and fill in the values:
 
 ### OpenAI API key
 
-We will provide you with OpenAI key that's allowed to use gpt-3.5-turbo and embedding models, contact us on the TG group above.
+We will provide you with OpenAI key that's allowed to use gpt-3.5-turbo and embedding models, contact us.
 
-However, everyone is welcome to use arbitrary LLM if wanted.
+However, everyone is welcome to use any arbitrary LLM you like (for example, open-source Ollama models).
 
 ### Tavily API key
 
@@ -42,86 +40,36 @@ Again, everyone is welcome to use arbitrary search engines, combine them, or eve
 
 ### Private key on Gnosis Chain
 
-Use your existing or create a new wallet on Gnosis Chain. 
+We recommend you create a fresh new developer key for the project to avoid losing your funds. 
 
-By default the script will do only very tiny bets (0.00001 xDai per market), but of course, you can contact us on the TG group above with your public key to get some free xDai.
+You can create a new set of private and public keys by running
+```python
+from eth_account import Account
+acc = Account.create()
+print (acc.key.hex(), acc.address)
+```
+
+By default the script will do only very tiny bets (0.00001 xDai per market).
 
 ## Task
 
-Your task is to modify `predict` function in `trader/prediction.py` by any means necessary.
+Your task is to add new functions to the general agent. Be creative!
 
-Goal of the `predict` function is, given an `question` about the future, answer it with either `True` (the answer is `yes`), `False` (if the answer is `no`) or `None` (if the prediction failed).
-
-All the questions are guaranteed to be about the future and to be in a binary yes/no format.
+-> Feel free to get inspiration from the tools we already built (https://github.com/gnosis/prediction-market-agent/blob/main/prediction_market_agent/agents/microchain_agent/microchain_agent.py#L30)
 
 You can play with the prompts, different approaches, different LLMs, search engines, or anything you can think of.
 
-The code can be messy, the only thing we ask you is for it to be reproducible on our machines, and to help with that, there is `mypy` as the only check of CI pipeline on Github.
+A few ideas:
 
-A few ideas to jump start your experiments:
+- Interact with protocolos on Gnosis Chain (Aave, CowSwap, Omen, etc.)
 
-On the research side:
+## Deployment
 
-- Scrape multiple search engines
-- Scrape different kinds of sources depending on question type
-- Trying different methods for extracting valuable information from each site
-- Handling cases where two sources contain conflicting information
+We suggest using [Modal](https://modal.com) for the deployment of agents.
+If you installed the dependencies using Poetry, Modal should already be available in your environment.
+You need to create an account and generate api keys. Then, add the keys MODAL_TOKEN_ID and MODAL_TOKEN_SECRET to your .env file.
 
-On the prediction side:
-
-- Have an ensemble of agents making predictions, and taking an average or other aggregation method
-- Currently the LLM returns a float, and this is converted to a binary Yes/No answer by thresholding at 0.5. Experiment with having the LLM return different kinds of answers (e.g. categorical)
-
-### Testing your experiments
-
-Run 
-
-```bash
-PYTHONPATH=. streamlit run trader/app.py
+For creating a cron job that triggers the general agent, deploy it with
 ```
-
-to start a Streamlit application where you can give your prediction method either question [from the Omen market](https://aiomen.eth.limo/), or write your own.
-
-Run 
-
-```bash
-python trader/benchmark.py --n N
+poetry run modal deploy --name <YOUR_APP_NAME> general_agent/remote_runner.py  
 ```
-
-where `N` is number of markets to do a prediction on. The benchmark script will run
-
-1. Random agent (coin flip between yes and no answers)
-2. Question-only agent (only LLM call, without any information from internet)
-3. `prediction.py/predict`-based agent
-
-on `N` open markets from https://manifold.markets. 
-
-The idea is that markets on Manifold are mostly answered by real people, so the closer your agent is to their predictions, the better. However, it isn't always the case.
-
-Bear in mind your LLM credits, Tavily credits or any other paid 3rd provider credits when running the benchmark, as it answers many markets in a single run, which can be very costly.
-
-Run 
-
-```bash
-python trader/main.py
-```
-
-the script will place bets on random 10 markets from https://aiomen.eth.limo, these won't be used for the final evaluation, but you can double-check that all works as expected.
-
-### Submission
-
-1. Run `python trader/main.py --final`, it will place bets on all markets that will be used for the evaluation. You can run the script multiple times, but we will always look only at the latest bet on the market from your public key. If you get no markets found error, either we didn't open them yet, or they are already closed and it's too late for the submission. 
-2. Once you are happy with your agent's predictions, open a PR against this repository with your implementation and public key used for placing bets. This is your submission.
-3. Make sure the CI pipeline is all green.
-
-### Evaluation
-
-1. Quantitative 
-    1. We will create N markets from the address `0xa7E93F5A0e718bDDC654e525ea668c64Fd572882` by the end of the June, and they will be resolved in roughly two weeks after the creation.
-    2. We will measure the accuracy of your agent's answers (by the last bet on each market).
-
-2. Qualitative
-    1. We will look into implementation and judge the creativity of the improvements.
-
-3. Cheating
-    1. For example, sometimes, the exactly same markets can be found on other prediction market platforms. If we see in the code that the prediction isn’t doing anything practical, we will disqualify it. That being said, it's okay to look at other markets if they are not about the same question, for example, given the evaluation question `Will GNO hit $1000 by the end of 2025?` it's okay to use markets such as `Will GNO hit $500 by the mid of 2025?` as a guidance, but it's not okay to look at the market `Will GNO hit $1000 by the end of 2025?` and copy-paste current probabilities.
