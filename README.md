@@ -1,14 +1,8 @@
-# Gnosis Labs ZuBerlin 2024
+# Gnosis Labs dAGI 2024
 
 Welcome to the Gnosis AI dAGI Hackathon repo! Here you will find all you need to build an AI agent that can autonomously complete actions (including onchain).
 
 [Presentation available here.](https://docs.google.com/presentation/d/1aOLmKrRkkNktWOh3BwLqtG9AmQeiht9Gc1ONB5fH7RQ/edit?usp=sharing)
-
-Follow the instructions below to get started.
-
-## Running the autonomous agent
-
-``````
 
 ## Support
 
@@ -49,19 +43,24 @@ acc = Account.create()
 print (acc.key.hex(), acc.address)
 ```
 
-By default the script will do only very tiny bets (0.00001 xDai per market).
+## Running the agent
+
+```shell
+poetry run python general_agent/main.py
+```
+
 
 ## Task
 
-Your task is to add new functions to the general agent. Be creative!
+There are multiple avenues to explore with such a general agent. Ultimately we want it to thrive in the blockchain and be an autonomous agent ([some even claim it can be an alternate form of life](https://www.youtube.com/watch?v=Y4QKEJehYBg&t=6103s&ab_channel=DappConBerlin)).
 
--> Feel free to get inspiration from the tools we already built (https://github.com/gnosis/prediction-market-agent/blob/main/prediction_market_agent/agents/microchain_agent/microchain_agent.py#L30)
+Feel free to follow your inspiration and present us with your ideas. We list some of our ideas below:
 
-You can play with the prompts, different approaches, different LLMs, search engines, or anything you can think of.
+- Add new functions to the general agent: currently it can only fetch balances and do simple math functions. Integrations we would love to see would be with DeFi protocols that are live on Gnosis, such as Aave, Spark, CowSwap, Omen, and many others.
+  - Feel free to get inspiration from the tools we already built (https://github.com/gnosis/prediction-market-agent/blob/main/prediction_market_agent/agents/microchain_agent/microchain_agent.py#L30)
 
-A few ideas:
-
-- Interact with protocolos on Gnosis Chain (Aave, CowSwap, Omen, etc.)
+- Swap the framework we use for the autonomous agent. We currently use [microchain](https://github.com/galatolofederico/microchain), but many others would also make sense here.
+- Use different LLMs, for example, open-source ones from Ollama.
 
 ## Deployment
 
